@@ -1,0 +1,5 @@
+<mapper namespace="com.example.onlypuzzle.system.login.mapper.UserMapper">
+    <select id="login" parameterType="com.example.onlypuzzle.system.login.model.User" resultType="com.example.onlypuzzle.system.login.model.User">
+        select * from sys_user where username = #{username} and password = #{password}
+    </select>
+</mapper>
