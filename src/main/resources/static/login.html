@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<style>
+    *{
+    margin: 0;
+    padding: 0;
+    }
+    .container{
+    display: flex;
+    flex-direction: column;
+    }
+    .username{
+    width: 200px;
+    }
+    .password{
+    width: 200px;
+    }
+</style>
+<body>
+<div class="container">
+    <input class="username" type="text" placeholder="请输入用户名">
+    <input class="password" type="password" placeholder="请输入密码">
+    <div><button id="submit">提交</button> <button id="register">注册</button></div>
+    <p id="login_content"></p>
+</div>
+</body>
+<script>
+
+document.getElementById('submit').addEventListener('click', () => {
+    const username = document.querySelector('.username').value;
+    const password = document.querySelector('.password').value;
+    const content =  document.getElementById('login_content');
+    content.innerHTML = '';
+    if (username === '' || password === '') {
+        content.innerHTML += '请输入用户名和密码';
+        return;
+    }
+    fetch('/user/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            username,
+            password
+        })
+    }).then(response => response.json()).then(data => {
+        if (data.code === 200) {
+            content.innerHTML += '登录成功';
+        } else {
+            content.innerHTML += data.msg;
+        }
+    }).catch(error => {
+        console.error('登录失败:', error);
+        content.innerHTML += '登录失败，请稍后重试';
+    })
+})
+document.getElementById('register').addEventListener('click', () => {
+    const username = document.querySelector('.username').value;
+    const password = document.querySelector('.password').value;
+    const content =  document.getElementById('login_content');
+    content.innerHTML = '';
+    if(username === '' || password === ''){
+        content.innerHTML += '请输入用户名和密码';
+        return;
+    }
+    fetch('/user/register',{
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            username,
+            password
+        })
+    }).then(response => response.json()).then(data => {
+        if (data.code === 200) {
+            content.innerHTML += '注册成功';
+        } else {
+             content.innerHTML += data.msg;
+        }
+    }).catch(error => {
+        content.innerHTML += '注册失败,请稍后再试'; 
+    })
+})
+</script>
+</html>
