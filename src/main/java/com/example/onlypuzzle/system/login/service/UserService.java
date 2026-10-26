@@ -4,4 +4,8 @@ import org.springframework.stereotype.Service;
 
 public interface UserService {
      User login(User user); 
+
+     User register(User user);
+
+     Integer findByUsername(String username);
 }
