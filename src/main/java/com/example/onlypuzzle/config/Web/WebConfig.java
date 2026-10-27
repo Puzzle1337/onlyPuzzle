@@ -1,17 +1,24 @@
 package com.example.onlypuzzle.config.Web;
 
+import com.example.onlypuzzle.config.JwtAuthInterceptor;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
-
     @Override
-    public void addViewControllers(ViewControllerRegistry registry) {
-        // 根路径 → redirect 到 /login.html
-        registry.addRedirectViewController("/", "/login.html");
-        // 也可以加纯 forward 的
-        // registry.addViewController("/home").setViewName("forward:/index.html");
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**")
+            .allowedOrigins("http://localhost:5173")   // ← 允许这个前端地址
+            .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+            .allowedHeaders("*")
+            .allowCredentials(true);
+    }
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(new JwtAuthInterceptor()).addPathPatterns("/**").excludePathPatterns("/user/login","/user/register");
     }
 }

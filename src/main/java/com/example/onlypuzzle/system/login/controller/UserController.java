@@ -7,6 +7,7 @@ import com.example.onlypuzzle.system.login.model.User;
 import com.example.onlypuzzle.system.login.service.UserService;
 import com.example.onlypuzzle.system.util.Result;
 import org.springframework.web.bind.annotation.*;
+import com.example.onlypuzzle.system.login.model.LoginResponse;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,8 +33,8 @@ public class UserController {
      * Nginx access log 里，密码等于明文泄露，这是安全红线
      */
     @PostMapping("/login")
-    public Result<User> login(@RequestBody User user) {
-        User result = userService.login(user);
+    public Result<LoginResponse> login(@RequestBody User user) {
+        LoginResponse result = userService.login(user);
         return Result.success(result);
     }
     @PostMapping("/register")
