@@ -1,0 +1,33 @@
+:root {
+    --color-primary: #2563eb;
+    --color-secondary: #6b7280;
+    --color-accent: #f8fafc;
+    --color-border: #e5e7eb;
+    --color-text: #111827;
+    --shadow-1: 0 1px 3px rgba(0,0,0,0.08);
+    --radius: 6px;
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-6: 24px;
+}
+.login-container{
+  display: flex;
+  justify-content: center; 
+  align-items: center; 
+  height: 300px;
+  width: 300px;
+  flex-direction: column; 
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); 
+}
+
+label {
+    display: inline-block; /* 必须转成块级元素才能设宽度 */
+    width: 60px;           /* 给个固定的宽度，比如 60px */
+    text-align: right;     /* 让文字靠右对齐（看起来更整齐） */
+    margin-right: 10px;    /* 和输入框留点缝隙 */
+}
