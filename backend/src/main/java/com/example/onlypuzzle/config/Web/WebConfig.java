@@ -20,6 +20,14 @@ public class WebConfig implements WebMvcConfigurer {
     }
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new JwtAuthInterceptor()).addPathPatterns("/**").excludePathPatterns("/user/login","/user/register");
+        registry.addInterceptor(new JwtAuthInterceptor())
+            .addPathPatterns("/**")
+            .excludePathPatterns(
+                "/user/login",
+                "/user/register",
+                "/post/list",        // 帖子列表是公开接口，不需要登录
+                "/post/all",         // 主页帖子流，公开
+                "/comment/list"      // 评论列表，公开
+            );
     }
 }

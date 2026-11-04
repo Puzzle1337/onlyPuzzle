@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.onlypuzzle.post.mapper.PostMapper">
+
+    <resultMap id="PostMap" type="com.example.onlypuzzle.post.model.Post">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="title" property="title"/>
+        <result column="status" property="status"/>
+        <result column="content" property="content"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_by" property="updateBy"/>    
+    </resultMap>
+
+    <select id="selectByUserId" resultMap="PostMap">
+        SELECT * FROM sys_post
+        WHERE user_id = #{userId}
+        <!-- status 可能为 null，动态判断 -->
+        <if test="status != null">AND status = #{status}</if>
+        ORDER BY create_time DESC
+        LIMIT #{offset}, #{size}
+    </select>
+
+    <select id="countByUserId" resultType="int">
+        SELECT COUNT(*) FROM sys_post
+        WHERE user_id = #{userId}
+        <if test="status != null">AND status = #{status}</if>
+    </select>
+
+    <select id="selectAll" resultMap="PostMap">
+        SELECT * FROM sys_post
+        WHERE status = 1
+        ORDER BY create_time DESC, id DESC
+        LIMIT #{offset}, #{size}
+    </select>
+
+    <select id="countAll" resultType="int">
+        SELECT COUNT(*) FROM sys_post WHERE status = 1
+    </select>
+
+    <select id="selectById" resultMap="PostMap">
+        SELECT * FROM sys_post WHERE id = #{id}
+    </select>
+
+    <!-- useGeneratedKeys + keyProperty：把 MySQL 自增出来的 id 写回 post.id -->
+    <insert id="insert" parameterType="com.example.onlypuzzle.post.model.Post"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sys_post (user_id, title, status, content, create_by, update_by)
+        VALUES (#{userId}, #{title}, #{status}, #{content}, #{createBy}, #{updateBy})
+    </insert>
+
+    <delete id="deleteById">
+        DELETE FROM sys_post WHERE id = #{id}
+    </delete>
+</mapper>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.onlypuzzle.post.mapper.CommentMapper">
+
+    <resultMap id="CommentMap" type="com.example.onlypuzzle.post.model.Comment">
+        <id column="id" property="id"/>
+        <result column="post_id" property="postId"/>
+        <result column="user_id" property="userId"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="content" property="content"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_by" property="updateBy"/>
+    </resultMap>
+
+    <delete id="deleteByPostId">
+        DELETE FROM sys_comment WHERE post_id = #{postId}
+    </delete>
+
+    <insert id="insert" parameterType="com.example.onlypuzzle.post.model.Comment"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sys_comment (post_id, user_id, parent_id, content, create_by, update_by)
+        VALUES (#{postId}, #{userId}, #{parentId}, #{content}, #{createBy}, #{updateBy})
+    </insert>
+
+    <select id="selectByPostId" resultMap="CommentMap">
+        SELECT * FROM sys_comment
+        WHERE post_id = #{postId}
+        ORDER BY create_time ASC, id ASC
+        LIMIT #{offset}, #{size}
+    </select>
+
+    <select id="countByPostId" resultType="int">
+        SELECT COUNT(*) FROM sys_comment WHERE post_id = #{postId}
+    </select>
+</mapper>

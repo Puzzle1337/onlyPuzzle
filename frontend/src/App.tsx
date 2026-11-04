@@ -1,15 +1,21 @@
 // 导入 useState —— Vue 里你会写 import { ref } from 'vue'
 import { useState,useEffect, useRef } from 'react';
 import request from './utils/request';
+import { runCommand } from './terminal/commands';
+import BlogHome from './components/BlogHome';
 import './static/App.css'
+import './static/home.css'
+import './static/blog.css'
+import postman20 from './assets/postman20.png';
 
 function App() {
+    // ========== 页面切换：CRT 电视 vs 主页（独立于频道系统） ==========
+    const [page, setPage] = useState<'crt' | 'home'>('crt');
+
     // ========== 1. 状态声明 ==========
-    // Vue: const username = ref('')      →  值: username.value
-    // React: 返回 [当前值, setter函数]     →  值: username（不用 .value）
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const [msg, setMsg] = useState('');       // 显示提示消息
+    const [msg, setMsg] = useState('');
     const [channel, setChannel] = useState(1);
     const [showOsd, setShowOsd] = useState(false);
     const osdTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -37,85 +43,71 @@ function App() {
         if (osdTimer.current) clearTimeout(osdTimer.current);
         osdTimer.current = setTimeout(() => setShowOsd(false), 2000);
     };
+
     // ========== 2. 事件处理 ==========
-    // Vue: const handleLogin = async () => { ... }
-    // React: 一样，JS 写法没区别
     const handleLogin = async () => {
         if (!username || !password) {
             setMsg('请输入用户名和密码');
             return;
         }
-
         try {
             const data = await request.post('/user/login',{username,password});
             if(data.code === 200){
               localStorage.setItem('token',data.data.token);
               setMsg('登录成功');
+              setPage('home');        // 登录成功 → 跳独立主页，不是频道
             }else{
               setMsg(data.msg);
             }
-             
         } catch (err) {
             setMsg('请求失败：' + (err as Error).message);
         }
     };
 
     const handleRegister = async () => {
-
         try {
             const data = await request.post('/user/register',{username,password})
             setMsg(data.code === 200 ? '注册成功' : data.msg);
-          
         } catch (err) {
             setMsg('请求失败：' + (err as Error).message);
         }
     };
-    const handleCommand = () => {
-    const cmd = command.trim();
-    let output = '';
-    switch (cmd) {
-        case 'help':
-            output = '1.clear\n2.whoami'
-            +'\n3.whoareyou'
-            +'\n4.anwser'
-            +'\n5.log'
-            ;      // 你来写：列出可用命令
-            break;
-        case '1115':
-            output = 'thank you my buddy...';      
-            break;
-        case 'anwser':
-            output = '4_2....42';      
-            break;
-        case 'whoami':
-            output = username;      
-            break;
-        case 'whoareyou':
-            output = 'i am Puzzle, a AI Agent created by Puzzle';      
-            break;
-        case 'log':
-            output = '2026-10-29 update by Zhang. All rights reserved.'
-            +'\tI dont know how to say it'
-            +'\nBut I think we need to think about and seriously consider the meaning of life.'
-            +'\nWhat is the meaning of life? Make more money? Buy a big house? Marry a good person?.'
-            +'\nNo ,I dont think so.'
-            +'\nBut I know you can find it. '
-            ;      
-            break;
-        case 'fuck':
-            output = 'fuck you too';      
-            break;
-        case 'clear':
-            setHistory([]);    // 清屏
-            setCommand('');
+
+    const handleCommand = async () => {
+        const cmd = command.trim();
+        if (!cmd) return;
+        setHistory(prev => [...prev, `${username}@1337:~$ ${cmd}`]);
+        setCommand('');
+
+        const res = await runCommand(cmd, { username });
+        if (res.clear) {
+            setHistory([]);
             return;
-        default:
-            output = `command not found: ${cmd}`;
+        }
+        if (res.output) {
+            setHistory(prev => [...prev, res.output]);
+        }
+    };
+
+    // ========== 主页（独立于 CRT） ==========
+    if (page === 'home') {
+        return (
+            <div className="page-home">
+                <header className="home-bar">
+                    <h1 className="home-bar-title">Puzzle 博客</h1>
+                    <div className="home-bar-actions">
+                        <span className="home-bar-user">你好，{username}</span>
+                        <button className="home-bar-btn" onClick={() => setPage('crt')}>← 回到 CRT</button>
+                    </div>
+                </header>
+                <main className="home-main">
+                    <BlogHome />
+                </main>
+            </div>
+        );
     }
-    // 追加两行：命令回显 + 输出（真实终端都是这么干的）
-    setHistory(prev => [...prev, `${username}@1337:~$ ${cmd}`, output]);
-    setCommand('');
-};
+
+    // ========== CRT 电视（频道系统完全不动） ==========
     return (
         <div id='root'>
         <div className="crt-monitor ">
@@ -148,14 +140,11 @@ function App() {
             )}
             {channel === 2 && (
                 <>
-                <div className="terminal-output">
                 <div className="terminal-output" ref={outputRef}>
                     {history.map((line, i) => (
                         <div className="output-line" key={i}>{line}</div>
                     ))}
                 </div>
-                <div className="output-line">&nbsp;</div>
-                 </div>
 
               <div className="input-line">
                 <span>{username}@1337:~$</span>
@@ -167,7 +156,9 @@ function App() {
                 </div>
             </>
             )}
-            {channel === 3 && <h3>频道 3 - 敬请期待</h3>}
+            {channel === 3 && (
+                <img id="postman20" src={postman20} alt="" />
+            )}
             {channel === 4 && <h3>频道 4 - 敬请期待</h3>}
             {channel === 5 && <h3>频道 5 - 敬请期待</h3>}
             </div>

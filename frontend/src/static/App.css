@@ -131,9 +131,54 @@ label {
 .terminal-output{
     display: block;
     width: 100%;
-    height: 100%;
+    flex: 1 1 0;          /* 和帖子流平分剩余高度 */
+    min-height: 0;        /* flex 子元素必须给 min-height:0，overflow 才生效 */
     font-size: 20px;
+    overflow-y: auto;
+    scrollbar-width: none;            /* 隐藏滚动条，内容自动下移 */
+}
+.terminal-output::-webkit-scrollbar{ display: none; }
+
+/* ===== 主页帖子流 ===== */
+.home-posts{
+    width: 100%;
+    flex: 1 1 0;
+    min-height: 0;
+    overflow-y: auto;
+    padding-bottom: var(--space-2, 8px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+    scrollbar-width: none;
+}
+.home-posts::-webkit-scrollbar{ display: none; }
+
+.post-item{
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 4px 0;
+    border-bottom: 1px dashed rgba(0, 0, 0, 0.08);
+    font-family: 'VT323', 'Fira Code', monospace;
+}
+
+.post-id{
+    color: #6b7280;
+    font-size: 14px;
+    flex: 0 0 auto;
+}
+
+.post-title{
+    color: #111827;
+    font-size: 16px;
+    flex: 1 1 auto;
     overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.post-meta{
+    color: #9ca3af;
+    font-size: 12px;
+    flex: 0 0 auto;
 }
 .input-line input{
     justify-content: left;
@@ -148,4 +193,9 @@ label {
 }
 .output-line{
      white-space: pre-line;
+}
+#postman20{
+    position: absolute;
+    left: 30px;
+    bottom: 0px;
 }

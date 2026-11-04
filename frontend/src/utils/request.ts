@@ -40,6 +40,9 @@ const request = {
     },
     post<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<Result<T>> {
         return instance.post(url, data, config) as unknown as Promise<Result<T>>;
+    },
+    del<T = any>(url: string, config?: AxiosRequestConfig): Promise<Result<T>> {
+        return instance.delete(url, config) as unknown as Promise<Result<T>>;
     }
 };
 
