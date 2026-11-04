@@ -10,9 +10,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@types/d3-geo": "^3.1.1",
     "axios": "^1.21.0",
+    "d3-geo": "^3.1.2",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
+    "topojson-client": "^3.1.0",
     "xp.css": "^0.2.6"
   },
   "devDependencies": {

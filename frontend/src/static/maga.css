@@ -1,0 +1,208 @@
+/* ========== MAGA 美国地图 — HOI4 风格 ========== */
+.maga-root{
+    min-height: 100vh;
+    background: #14171c;
+    color: #c9a227;
+    font-family: 'Courier New', monospace;
+    display: flex;
+    flex-direction: column;
+    letter-spacing: 0.06em;
+}
+
+/* 顶部资源条 */
+.maga-topbar{
+    height: 42px;
+    background: #1d222a;
+    border-bottom: 1px solid #c9a227;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    flex-shrink: 0;
+}
+.maga-title{
+    font-size: 14px;
+    font-weight: 700;
+    color: #c9a227;
+    letter-spacing: 0.15em;
+}
+.maga-resources{
+    display: flex;
+    gap: 24px;
+    font-size: 12px;
+}
+.maga-resources span{ color: #9aa0a6; }
+
+/* 三栏主区 */
+.maga-main{
+    flex: 1;
+    display: flex;
+    min-height: 0;
+}
+.maga-panel{
+    width: 260px;
+    background: #1d222a;
+    border-right: 1px solid #2a3039;
+    padding: 16px;
+    overflow-y: auto;
+    flex-shrink: 0;
+    scrollbar-width: none;
+}
+.maga-panel::-webkit-scrollbar{ display: none; }
+.maga-panel-right{
+    border-right: none;
+    border-left: 1px solid #2a3039;
+}
+.maga-panel-title{
+    font-size: 11px;
+    font-weight: 700;
+    color: #c9a227;
+    margin: 0 0 10px 0;
+    letter-spacing: 0.2em;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #2a3039;
+}
+.maga-panel-title:not(:first-child){ margin-top: 20px; }
+
+.maga-stat-row{
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #9aa0a6;
+    padding: 4px 0;
+}
+.maga-list{
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.maga-list li{
+    font-size: 12px;
+    color: #9aa0a6;
+    padding: 4px 0;
+    cursor: pointer;
+}
+.maga-list li:hover{ color: #c9a227; }
+
+/* 地图区 */
+.maga-map-wrap{
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    min-width: 0;
+}
+.maga-svg{
+    width: 100%;
+    height: 100%;
+    max-height: calc(100vh - 150px);
+}
+
+/* 全国轮廓 */
+.maga-nation{
+    fill: none;
+    stroke: #c9a227;
+    stroke-width: 1.5;
+    stroke-linejoin: round;
+}
+
+/* 各州 */
+.maga-state{
+    fill: #2f4a3f;
+    stroke: #14171c;
+    stroke-width: 0.8;
+    cursor: pointer;
+    transition: fill 0.15s ease;
+}
+.maga-state--hover{
+    fill: #4a6b5a;
+}
+.maga-state--selected{
+    fill: #c9a227;
+}
+
+/* 州缩写标签 */
+.maga-label{
+    fill: #c9a227;
+    font-size: 9px;
+    font-weight: 700;
+    pointer-events: none;
+    text-transform: uppercase;
+    opacity: 0.85;
+}
+
+/* 右面板 intel */
+.maga-intel{
+    text-align: center;
+    padding: 16px 0;
+}
+.maga-intel-abbr{
+    font-size: 48px;
+    font-weight: 700;
+    color: #c9a227;
+    line-height: 1;
+    letter-spacing: 0.1em;
+}
+.maga-intel-name{
+    font-size: 12px;
+    color: #9aa0a6;
+    margin-top: 6px;
+    letter-spacing: 0.15em;
+}
+.maga-intel-row{
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: #9aa0a6;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #2a3039;
+}
+.maga-empty{
+    color: #4a5059;
+    font-size: 12px;
+    text-align: center;
+    padding: 20px 0;
+}
+
+/* 图例 */
+.maga-legend{
+    font-size: 11px;
+    color: #9aa0a6;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.maga-legend div{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.maga-swatch{
+    width: 14px;
+    height: 14px;
+    border: 1px solid #14171c;
+    flex-shrink: 0;
+}
+.maga-swatch--default{ background: #2f4a3f; }
+.maga-swatch--hover{ background: #4a6b5a; }
+.maga-swatch--sel{ background: #c9a227; }
+
+/* 底部日志 */
+.maga-log{
+    height: 110px;
+    background: #0d1114;
+    border-top: 1px solid #c9a227;
+    padding: 8px 16px;
+    overflow-y: auto;
+    flex-shrink: 0;
+    scrollbar-width: none;
+}
+.maga-log::-webkit-scrollbar{ display: none; }
+.maga-log-line{
+    font-size: 11px;
+    color: #6b7280;
+    letter-spacing: 0.05em;
+    padding: 2px 0;
+}

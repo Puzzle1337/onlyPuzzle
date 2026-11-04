@@ -3,14 +3,16 @@ import { useState,useEffect, useRef } from 'react';
 import request from './utils/request';
 import { runCommand } from './terminal/commands';
 import BlogHome from './components/BlogHome';
+import MAGA from './components/MAGA';
 import './static/App.css'
 import './static/home.css'
 import './static/blog.css'
+import './static/maga.css'
 import postman20 from './assets/postman20.png';
 
 function App() {
-    // ========== 页面切换：CRT 电视 vs 主页（独立于频道系统） ==========
-    const [page, setPage] = useState<'crt' | 'home'>('crt');
+    // ========== 页面切换：crt / home / maga 三个独立页面 ==========
+    const [page, setPage] = useState<'crt' | 'home' | 'maga'>('crt');
 
     // ========== 1. 状态声明 ==========
     const [username, setUsername] = useState('');
@@ -89,6 +91,16 @@ function App() {
         }
     };
 
+    // ========== MAGA 美国地图（独立于 CRT） ==========
+    if (page === 'maga') {
+        return (
+            <>
+                <button className="page-switch" onClick={() => setPage('crt')}>← CRT</button>
+                <MAGA />
+            </>
+        );
+    }
+
     // ========== 主页（独立于 CRT） ==========
     if (page === 'home') {
         return (
@@ -134,6 +146,7 @@ function App() {
                     <div className="btn-group">
                         <button className="btn btn-primary" onClick={handleLogin}>登录</button>
                         <button className="btn" onClick={handleRegister}>注册</button>
+                        <button className="btn" onClick={() => setPage('maga')}>MAGA</button>
                     </div>
                     {msg && <p className="msg">{msg}</p>}
                 </>
