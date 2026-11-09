@@ -1,9 +1,12 @@
-// 导入 useState —— Vue 里你会写 import { ref } from 'vue'
-import { useState,useEffect, useRef } from 'react';
+//人类寻找意义，而世界沉默不语。
+//puzzle
+import { useState, useEffect, useRef } from 'react';
 import request from './utils/request';
 import { runCommand } from './terminal/commands';
 import BlogHome from './components/BlogHome';
 import MAGA from './components/MAGA';
+import MAGA_mainpage from './components/MAGA_mainpage';
+import type { Faction } from './data/factions';
 import './static/App.css'
 import './static/home.css'
 import './static/blog.css'
@@ -11,8 +14,9 @@ import './static/maga.css'
 import postman20 from './assets/postman20.png';
 
 function App() {
-    // ========== 页面切换：crt / home / maga 三个独立页面 ==========
-    const [page, setPage] = useState<'crt' | 'home' | 'maga'>('crt');
+    // ========== 页面切换：crt / home / maga_main / maga 四个独立页面 ==========
+    const [page, setPage] = useState<'crt' | 'home' | 'maga_main' | 'maga'>('crt');
+    const [currentFaction, setCurrentFaction] = useState<Faction | null>(null);
 
     // ========== 1. 状态声明 ==========
     const [username, setUsername] = useState('');
@@ -28,11 +32,13 @@ function App() {
         "2026-11-32 edit by Puzzle. All rights reserved.",
         "Type 'help' to see available commands.",
     ]);
+
     useEffect(() => {
         if (outputRef.current) {
             outputRef.current.scrollTop = outputRef.current.scrollHeight;
         }
     }, [history]);
+
     const handleNextChannel = () => {
         setChannel(prev => prev === 5 ? 1 : prev + 1);
         setShowOsd(true);
@@ -53,13 +59,13 @@ function App() {
             return;
         }
         try {
-            const data = await request.post('/user/login',{username,password});
-            if(data.code === 200){
-              localStorage.setItem('token',data.data.token);
-              setMsg('登录成功');
-              setPage('home');        // 登录成功 → 跳独立主页，不是频道
-            }else{
-              setMsg(data.msg);
+            const data = await request.post('/user/login', { username, password });
+            if (data.code === 200) {
+                localStorage.setItem('token', data.data.token);
+                setMsg('登录成功');
+                setPage('home');
+            } else {
+                setMsg(data.msg);
             }
         } catch (err) {
             setMsg('请求失败：' + (err as Error).message);
@@ -68,7 +74,7 @@ function App() {
 
     const handleRegister = async () => {
         try {
-            const data = await request.post('/user/register',{username,password})
+            const data = await request.post('/user/register', { username, password });
             setMsg(data.code === 200 ? '注册成功' : data.msg);
         } catch (err) {
             setMsg('请求失败：' + (err as Error).message);
@@ -80,24 +86,25 @@ function App() {
         if (!cmd) return;
         setHistory(prev => [...prev, `${username}@1337:~$ ${cmd}`]);
         setCommand('');
-
         const res = await runCommand(cmd, { username });
-        if (res.clear) {
-            setHistory([]);
-            return;
-        }
-        if (res.output) {
-            setHistory(prev => [...prev, res.output]);
-        }
+        if (res.clear) { setHistory([]); return; }
+        if (res.output) { setHistory(prev => [...prev, res.output]); }
     };
 
-    // ========== MAGA 美国地图（独立于 CRT） ==========
+    // ========== 派系选择页 ==========
+    if (page === 'maga_main') {
+        return (
+            <MAGA_mainpage
+                onBack={() => setPage('home')}
+                onConfirm={(f) => { setCurrentFaction(f); setPage('maga'); }}
+            />
+        );
+    }
+
+    // ========== MAGA 地图 ==========
     if (page === 'maga') {
         return (
-            <>
-                <button className="page-switch" onClick={() => setPage('crt')}>← CRT</button>
-                <MAGA />
-            </>
+            <MAGA faction={currentFaction} onBack={() => setPage('maga_main')} />
         );
     }
 
@@ -109,6 +116,9 @@ function App() {
                     <h1 className="home-bar-title">Puzzle 博客</h1>
                     <div className="home-bar-actions">
                         <span className="home-bar-user">你好，{username}</span>
+                        <button className="home-bar-btn" onClick={() => setPage('maga_main')}>
+                            🎮 进入 MAGA
+                        </button>
                         <button className="home-bar-btn" onClick={() => setPage('crt')}>← 回到 CRT</button>
                     </div>
                 </header>
@@ -146,7 +156,6 @@ function App() {
                     <div className="btn-group">
                         <button className="btn btn-primary" onClick={handleLogin}>登录</button>
                         <button className="btn" onClick={handleRegister}>注册</button>
-                        <button className="btn" onClick={() => setPage('maga')}>MAGA</button>
                     </div>
                     {msg && <p className="msg">{msg}</p>}
                 </>
@@ -158,10 +167,9 @@ function App() {
                         <div className="output-line" key={i}>{line}</div>
                     ))}
                 </div>
-
               <div className="input-line">
                 <span>{username}@1337:~$</span>
-                <input className="input" type="text" id="command-input" 
+                <input className="input" type="text" id="command-input"
                 value={command}
                 onChange={e => setCommand(e.target.value)}
                 onKeyDown={e=>{if(e.key === 'Enter'){handleCommand()}}}
@@ -176,19 +184,15 @@ function App() {
             {channel === 5 && <h3>频道 5 - 敬请期待</h3>}
             </div>
 
-            {/* OSD 叠加层：直接放在 crt-screen 里，不参与 screen-glass 的 flex 布局 */}
+            {/* OSD 叠加层 */}
             {showOsd && <div className="channel-osd">CH {channel}</div>}
 
         </div>
         </div>
         <div className="tv-controller">
          <div className="channel-btn-group">
-         <button className="channel-btn" onClick={handlePrevChannel}>
-              &lt; 
-         </button>
-         <button className="channel-btn" onClick={handleNextChannel}>
-              &gt;
-         </button>
+         <button className="channel-btn" onClick={handlePrevChannel}>&lt;</button>
+         <button className="channel-btn" onClick={handleNextChannel}>&gt;</button>
          </div>
          </div>
         </div>

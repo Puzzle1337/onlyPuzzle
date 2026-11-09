@@ -1,5 +1,16 @@
 @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
 
+/* ========== 页面切换动画 ========== */
+@keyframes pageFadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.page-home,
+.maga-mainpage,
+.maga-root {
+    animation: pageFadeIn 0.28s ease-out;
+}
+
 :root{
     background-color:#0D1117;
     justify-content: center;
@@ -41,7 +52,10 @@
   100% { opacity: 0; transform: scale(1.1); }
 }
 .crt-monitor {
+    box-sizing: border-box;
     min-width: 1200px;
+    max-width: 1400px;
+    margin: 0 auto;
     animation: crt-flicker 4s infinite;
     background: #3f3f3f;       
     padding: 10px 40px 40px 40px;          
@@ -51,8 +65,11 @@
     box-shadow: var(--shadow-2);
 }
 .tv-controller{
+     box-sizing: border-box;
      position: relative;
      min-width: 1200px;
+     max-width: 1400px;
+     margin: 0 auto;
      background: #3f3f3f;  
      height: 40px;
 }

@@ -5,6 +5,7 @@ package com.example.onlypuzzle.post.service.Impl;
 import com.example.onlypuzzle.post.mapper.CommentMapper;
 import com.example.onlypuzzle.post.mapper.PostMapper;
 import com.example.onlypuzzle.post.model.Post;
+import com.example.onlypuzzle.post.service.PostCacheService;
 import com.example.onlypuzzle.post.service.PostService;
 import com.example.onlypuzzle.system.exception.ExceptionClass;
 import org.springframework.stereotype.Service;
@@ -17,17 +18,36 @@ public class PostServiceImpl implements PostService {
     // final + 构造器注入：不可变、循环依赖早发现、单元测试好 mock
     private final PostMapper postMapper;
     private final CommentMapper commentMapper;
+    private final PostCacheService postCacheService;
 
-    public PostServiceImpl(PostMapper postMapper, CommentMapper commentMapper) {
+    public PostServiceImpl(PostMapper postMapper,
+                           CommentMapper commentMapper,
+                           PostCacheService postCacheService) {
         this.postMapper = postMapper;
         this.commentMapper = commentMapper;
+        this.postCacheService = postCacheService;
     }
 
+    /**
+     * 读：典型的 Cache-Aside 三步曲。
+     *   1. 查缓存，命中直接返回（大部分请求走到这里就结束了，不碰数据库）
+     *   2. 没命中才查数据库
+     *   3. 把结果回写缓存，供下次使用
+     *
+     * 注意这里没有加锁。极端情况下同一瞬间有 100 个请求同时 miss，
+     * 就会一起打到数据库 —— 这就是"缓存击穿"。第 2 周我们会用互斥锁解决它。
+     */
     @Override
     public List<Post> listByUser(Long userId, Byte status, int page, int size) {
+        List<Post> cached = postCacheService.getList(userId, status, page, size);
+        if (cached != null) {
+            return cached;
+        }
         // 前端 page 从 1 开始，MySQL LIMIT offset 从 0 开始，这里做换算
         int offset = (page - 1) * size;
-        return postMapper.selectByUserId(userId, status, offset, size);
+        List<Post> list = postMapper.selectByUserId(userId, status, offset, size);
+        postCacheService.putList(userId, status, page, size, list);
+        return list;
     }
 
     @Override
@@ -54,6 +74,8 @@ public class PostServiceImpl implements PostService {
     @Override
     public Long createPost(Post post) {
         postMapper.insert(post);
+        // 写完必须让旧缓存失效，否则用户发完帖刷新还是看不到新帖
+        postCacheService.evictUserLists(post.getUserId());
         return post.getId();   // useGeneratedKeys 已把自增主键回填进来
     }
 
@@ -78,5 +100,7 @@ public class PostServiceImpl implements PostService {
 
         commentMapper.deleteByPostId(postId);
         postMapper.deleteById(postId);
+        // 缓存失效放在事务内：即使后面回滚，也只是多一次 miss，不会读到脏数据
+        postCacheService.evictUserLists(post.getUserId());
     }
 }
